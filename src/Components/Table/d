@@ -1,0 +1,139 @@
+import React, { Fragment, useState } from 'react';
+import DataTable from 'datatables.net-react';
+import DT from 'datatables.net-dt';
+import 'datatables.net-dt/css/dataTables.dataTables.min.css';
+import useHostname from '../Provider/HostnameProvider';
+import ModalDetailProduct from '../Modal/ModalDetailProduct';
+
+DataTable.use(DT);
+
+const DataCustomTable = ({ data = [], info = false, paging = false, searching = false, lengthChange = false, searchTerm = "" }) => {
+  const originalUrl = useHostname();
+
+  const [show, setShow] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState(null); // State to store selected order data
+
+  const handleClose = () => setShow(false);
+  const handleShow = () => setShow(true);
+
+  // Filter data based on search term
+  const filteredData = data.filter((item) =>
+    String(item.order).toLowerCase().includes(searchTerm.toLowerCase()) ||
+    String(item.date).toLowerCase().includes(searchTerm.toLowerCase()) ||
+    String(item.customer.name).toLowerCase().includes(searchTerm.toLowerCase()) ||
+    String(item.customer.email).toLowerCase().includes(searchTerm.toLowerCase()) ||
+    String(item.payment).toLowerCase().includes(searchTerm.toLowerCase()) ||
+    String(item.status).toLowerCase().includes(searchTerm.toLowerCase()) ||
+    String(item.method.type).toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // Function to open the modal and pass the order data
+  const handleRowClick = (rowData) => {
+    console.log('ggggggggggggggggggggggg'); // Check if row data is passed correctly
+    console.log(rowData); // Check if row data is passed correctly
+    setSelectedOrder(rowData); // Set the selected order data
+    handleShow(); // Show the modal
+  };
+
+  const columns = [
+    {
+      title: 'ORDER', 
+      data: 'order', 
+      render: function (data, type, row) {
+        return `<span class="order-cell" style="cursor: pointer;" onclick="handleRowClick(${JSON.stringify(row)})">${data}</span>`; // Attach onclick to the span
+      },
+      
+    },
+    { title: 'DATE', data: 'date' },
+    {
+      title: 'CUSTOMER',
+      data: 'customer',
+      render: function (data) {
+        return `
+        <div class="flex items-center gap-2">
+          <div class="">
+            <h5 class="font-medium text__14">${data.name}</h5>
+            <p class="text__12 text-Mtexttextsecondary">${data.email}</p>
+          </div>
+        </div>
+      `;
+      },
+    },
+    {
+      title: 'PAYMENT',
+      data: 'payment',
+      render: function (data) {
+        return data == "Successful" ? `
+        <div class="flex items-center gap-2 text-Malertssucces">
+        <div class="w-[6px] h-[6px] rounded-full bg-Malertssucces"></div>
+        <p class="text__14">${data}</p>
+        </div>
+      `: `<div class="flex items-center gap-2 text-Malertserror">
+        <div class="w-[6px] h-[6px] rounded-full bg-Maltext-Malertserror"></div>
+        <p class="text__14">${data}</p>
+        </div>`;
+      },
+    },
+    {
+      title: 'STATUS',
+      data: 'status',
+      render: function (data) {
+        return data == "Scheduled" ? `<div class="text__14 text-Malertswarning px-2 py-2 inline-block rounded-[4px] border !border-[#FFF5CC] bg-[#FFFAE5]">${data}</div>` : data == "Cancel" ? `<div class="text__14 text-Malertserror px-2 py-2 inline-block rounded-[4px] border !border-[#FFEBEA] bg-[#FFEFEE]">${data}</div>` : `
+        <div class="text__14 text-Malertssucces px-2 py-2 inline-block rounded-[4px] border !border-[#D6F4DE] bg-[#EFFBF2]">${data}</div>
+      `;
+      },
+    },
+    {
+      title: 'ACTIONS',
+      data: null,
+      render: function (row) {
+        return `<div class="w-full text-center">
+        <img src="${originalUrl}/images/DotsThreeVertical.svg" class="mx-auto" alt="" />
+        </div>`;
+      },
+      orderable: false,
+    },
+  ];
+
+  return (
+    <Fragment>
+      <ModalDetailProduct
+        onHideClick={handleClose}
+        show={show}
+        onHide={handleClose}
+        dialogClassName="xl:mr-0 warpContent custom-width-modal"
+        order={selectedOrder} // Pass selected order data to the modal
+      />
+
+      <div className="w-full overflow-auto">
+        <div className="w-[1400px] xl:w-full">
+          <div className="tableWrapCustom">
+          
+          <div onClick={handleRowClick}>
+
+
+          
+            <DataTable
+              className='TableCustom'
+              data={filteredData}
+              columns={columns}
+              options={{
+                paging: paging,
+                searching: searching,
+                info: info,
+                lengthChange: lengthChange,
+                // Additional options here if needed
+              }}
+              // Adding event listeners or options to call handleRowClick from here
+            />
+
+          </div>
+
+          </div>
+        </div>
+      </div>
+    </Fragment>
+  );
+};
+
+export default DataCustomTable;
