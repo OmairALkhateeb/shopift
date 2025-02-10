@@ -78,18 +78,18 @@ const Layout = ({ children, title = "Shotify", description = "Shotify Desc", nav
 
     // Check for token in local storage
     useEffect(() => {
-        // console.log("useEffect called")
-        // const token = localStorage.getItem('token');
-        // if (!token) {
+        console.log("useEffect called")
+        const token = localStorage.getItem('token');
+        if (!token) {
 
-        //     console.log("token :" , token)
+            console.log("token :" , token)
 
-        //     router.push('/auth/login'); // Redirect to login if no token
-        // }
-        // else{
+            router.push('/auth/login'); // Redirect to login if no token
+        }
+        else{
 
-        //     console.log("token :" , token)
-        // }
+            console.log("token :" , token)
+        }
     }, [router]);
 
     return (
